@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { type City, getCategoryInfo } from "@/data/cities";
+import { getReflection } from "@/data/reflections";
 
 interface Props {
   city: City;
@@ -10,6 +11,7 @@ interface Props {
 
 export default function CityCard({ city, onClose }: Props) {
   const catInfo = getCategoryInfo(city.category);
+  const reflection = getReflection(city.id);
 
   return (
     <div className="h-full flex flex-col">
@@ -50,6 +52,17 @@ export default function CityCard({ city, onClose }: Props) {
         >
           &ldquo;{city.quote}&rdquo;
         </blockquote>
+
+        {reflection && (
+          <div className="mb-4">
+            <p className="font-sans text-[10px] text-parchment/40 mb-1.5">
+              💜 Hypatia&apos;s reflection
+            </p>
+            <p className="font-serif text-sm italic text-gold leading-relaxed">
+              {reflection.essence}
+            </p>
+          </div>
+        )}
 
         <p className="text-xs text-parchment/35 font-sans mb-5">
           {catInfo?.description}
