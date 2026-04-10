@@ -31,6 +31,9 @@ const config: Config = {
         "pulse-gentle": "pulseGentle 4s ease-in-out infinite",
         "float": "float 6s ease-in-out infinite",
         "slide-up": "slideUp 300ms ease-out forwards",
+        "slide-up-full": "slideUpFull 300ms ease-out forwards",
+        "slide-in-right": "slideInRight 300ms ease-out forwards",
+        "breathe": "breathe 3.5s ease-in-out infinite",
       },
       keyframes: {
         fadeIn: {
@@ -48,6 +51,18 @@ const config: Config = {
         slideUp: {
           "0%": { opacity: "0", transform: "translateY(1.5rem)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        slideUpFull: {
+          "0%": { transform: "translateY(100%)" },
+          "100%": { transform: "translateY(0)" },
+        },
+        slideInRight: {
+          "0%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(0)" },
+        },
+        breathe: {
+          "0%, 100%": { opacity: "0.4" },
+          "50%": { opacity: "0.7" },
         },
       },
     },

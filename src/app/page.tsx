@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import StarField from "@/components/StarField";
 import ConstellationMap from "@/components/ConstellationMap";
 import CategoryNav from "@/components/CategoryNav";
@@ -10,7 +10,6 @@ import type { Category, City } from "@/data/cities";
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   // Deselect city when switching to a category that doesn't contain it
   useEffect(() => {
@@ -19,23 +18,8 @@ export default function Home() {
     }
   }, [activeCategory, selectedCity]);
 
-  // Smooth-scroll to card when a city is selected
-  useEffect(() => {
-    if (selectedCity && cardRef.current) {
-      const timer = setTimeout(() => {
-        cardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedCity]);
-
-  const handleCloseCard = () => {
-    setSelectedCity(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
-    <div className="relative min-h-screen flex flex-col">
+    <div className="relative h-screen flex flex-col overflow-hidden">
       <StarField />
 
       {/* Header */}
@@ -48,38 +32,56 @@ export default function Home() {
         </p>
       </header>
 
-      {/* Sticky category navigation */}
-      <div className="sticky top-0 z-20 py-2.5 bg-background/80 backdrop-blur-sm border-b border-parchment/[0.04]">
+      {/* Category navigation */}
+      <div className="relative z-20 py-2.5 bg-background/80 backdrop-blur-sm border-b border-parchment/[0.04]">
         <CategoryNav
           activeCategory={activeCategory}
           onCategoryChange={setActiveCategory}
         />
       </div>
 
-      {/* Constellation — fills remaining viewport height, vertically centered */}
-      <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-2 min-h-0">
-        <div className="w-full h-full">
-          <ConstellationMap
-            activeCategory={activeCategory}
-            selectedCity={selectedCity}
-            onSelectCity={setSelectedCity}
-          />
-        </div>
-      </main>
+      {/* Main content: constellation + optional sidebar */}
+      <div className="relative flex-1 min-h-0 z-10">
+        {/* Constellation — always full width */}
+        <main className="w-full h-full flex items-center justify-center px-4 py-2">
+          <div className="w-full h-full">
+            <ConstellationMap
+              activeCategory={activeCategory}
+              selectedCity={selectedCity}
+              onSelectCity={setSelectedCity}
+            />
+          </div>
+        </main>
 
-      {/* City detail card — normal flow below constellation */}
+        {/* Desktop: right sidebar */}
+        {selectedCity && (
+          <aside className="hidden md:flex flex-col absolute top-0 right-0 h-full w-[35%] max-w-sm z-30 border-l border-parchment/[0.08] bg-background/95 backdrop-blur-sm animate-slide-in-right">
+            <CityCard
+              city={selectedCity}
+              onClose={() => setSelectedCity(null)}
+            />
+          </aside>
+        )}
+      </div>
+
+      {/* Mobile: bottom sheet */}
       {selectedCity && (
-        <div ref={cardRef} className="relative z-10 py-8">
-          <CityCard
-            key={selectedCity.id}
-            city={selectedCity}
-            onClose={handleCloseCard}
-          />
+        <div
+          className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex flex-col rounded-t-xl border-t border-parchment/[0.08] bg-background/95 backdrop-blur-sm animate-slide-up-full"
+          style={{ height: "40vh" }}
+        >
+          <div className="w-10 h-1 bg-parchment/20 rounded-full mx-auto mt-2.5 mb-1 flex-shrink-0" />
+          <div className="flex-1 min-h-0">
+            <CityCard
+              city={selectedCity}
+              onClose={() => setSelectedCity(null)}
+            />
+          </div>
         </div>
       )}
 
       {/* Footer */}
-      <footer className="relative z-10 text-center py-5 px-4">
+      <footer className="relative z-10 text-center py-4 px-4">
         <p className="font-serif text-xs italic text-parchment/30">
           &ldquo;Elsewhere is a negative mirror. The traveler recognizes the little that is his,
           discovering the much he has not had and will never have.&rdquo;
