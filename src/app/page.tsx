@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import StarField from "@/components/StarField";
 import ConstellationMap from "@/components/ConstellationMap";
 import CategoryNav from "@/components/CategoryNav";
@@ -11,12 +11,24 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
 
+  const closeModal = useCallback(() => setSelectedCity(null), []);
+
   // Deselect city when switching to a category that doesn't contain it
   useEffect(() => {
     if (activeCategory && selectedCity && selectedCity.category !== activeCategory) {
       setSelectedCity(null);
     }
   }, [activeCategory, selectedCity]);
+
+  // Escape key closes the modal
+  useEffect(() => {
+    if (!selectedCity) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [selectedCity, closeModal]);
 
   return (
     <div className="relative h-screen flex flex-col overflow-hidden">
@@ -40,9 +52,8 @@ export default function Home() {
         />
       </div>
 
-      {/* Main content: constellation + optional sidebar */}
+      {/* Constellation */}
       <div className="relative flex-1 min-h-0 z-10">
-        {/* Constellation — always full width */}
         <main className="w-full h-full flex items-center justify-center px-4 py-2">
           <div className="w-full h-full">
             <ConstellationMap
@@ -52,30 +63,24 @@ export default function Home() {
             />
           </div>
         </main>
-
-        {/* Desktop: right sidebar */}
-        {selectedCity && (
-          <aside className="hidden md:flex flex-col absolute top-0 right-0 h-full w-[35%] max-w-sm z-30 border-l border-parchment/[0.08] bg-background/95 backdrop-blur-sm animate-slide-in-right">
-            <CityCard
-              city={selectedCity}
-              onClose={() => setSelectedCity(null)}
-            />
-          </aside>
-        )}
       </div>
 
-      {/* Mobile: bottom sheet */}
+      {/* Lightbox modal */}
       {selectedCity && (
         <div
-          className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex flex-col rounded-t-xl border-t border-parchment/[0.08] bg-background/95 backdrop-blur-sm animate-slide-up-full"
-          style={{ height: "40vh" }}
+          className="fixed inset-0 z-40 flex items-center justify-center p-4 animate-modal-backdrop"
+          style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
+          onClick={closeModal}
         >
-          <div className="w-10 h-1 bg-parchment/20 rounded-full mx-auto mt-2.5 mb-1 flex-shrink-0" />
-          <div className="flex-1 min-h-0">
-            <CityCard
-              city={selectedCity}
-              onClose={() => setSelectedCity(null)}
-            />
+          <div
+            className="w-full max-w-[500px] rounded-lg animate-modal-card"
+            style={{
+              backgroundColor: "rgba(10, 10, 18, 0.95)",
+              border: "1px solid rgba(196,163,90,0.15)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <CityCard city={selectedCity} onClose={closeModal} />
           </div>
         </div>
       )}
