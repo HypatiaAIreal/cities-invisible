@@ -11,7 +11,7 @@ export default function CityCard({ city, onClose }: Props) {
   const catInfo = getCategoryInfo(city.category);
 
   return (
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-lg z-20 animate-fade-in">
+    <div className="w-full max-w-lg mx-auto px-4 animate-slide-up">
       <div
         className="relative border rounded-lg p-6 backdrop-blur-md"
         style={{
@@ -46,7 +46,8 @@ export default function CityCard({ city, onClose }: Props) {
         </h2>
 
         {/* Quote */}
-        <blockquote className="font-serif text-base italic text-parchment/80 leading-relaxed border-l-2 pl-4"
+        <blockquote
+          className="font-serif text-base italic text-parchment/80 leading-relaxed border-l-2 pl-4"
           style={{ borderColor: `${catInfo?.color}40` }}
         >
           &ldquo;{city.quote}&rdquo;

@@ -30,6 +30,7 @@ const config: Config = {
         "fade-in-slow": "fadeIn 3s ease-out forwards",
         "pulse-gentle": "pulseGentle 4s ease-in-out infinite",
         "float": "float 6s ease-in-out infinite",
+        "slide-up": "slideUp 300ms ease-out forwards",
       },
       keyframes: {
         fadeIn: {
@@ -43,6 +44,10 @@ const config: Config = {
         float: {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-6px)" },
+        },
+        slideUp: {
+          "0%": { opacity: "0", transform: "translateY(1.5rem)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
       },
     },
