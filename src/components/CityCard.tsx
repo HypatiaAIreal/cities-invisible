@@ -12,59 +12,58 @@ export default function CityCard({ city, onClose }: Props) {
   const catInfo = getCategoryInfo(city.category);
 
   return (
-    <div className="relative max-h-[80vh] overflow-y-auto p-6">
-      {/* Close button */}
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 text-parchment/40 hover:text-parchment transition-colors text-lg leading-none"
-        aria-label="Close"
-      >
-        &times;
-      </button>
+    <div className="h-full flex flex-col">
+      {/* Header with close */}
+      <div className="flex items-start justify-between px-5 pt-4 pb-0">
+        <p
+          className="font-sans text-[10px] tracking-[0.2em] uppercase"
+          style={{ color: catInfo?.color }}
+        >
+          {catInfo?.label} {city.number}
+        </p>
+        <button
+          onClick={onClose}
+          className="text-parchment/40 hover:text-parchment transition-colors text-lg leading-none -mt-0.5"
+          aria-label="Close"
+        >
+          &times;
+        </button>
+      </div>
 
-      {/* Category label */}
-      <p
-        className="font-sans text-[10px] tracking-[0.2em] uppercase mb-2"
-        style={{ color: catInfo?.color }}
-      >
-        {catInfo?.label} {city.number}
-      </p>
+      {/* Scrollable content */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-5 py-3">
+        <h2
+          className="font-serif text-2xl italic mb-3"
+          style={{ color: catInfo?.color }}
+        >
+          {city.name}
+        </h2>
 
-      {/* City name */}
-      <h2
-        className="font-serif text-3xl italic mb-3"
-        style={{ color: catInfo?.color }}
-      >
-        {city.name}
-      </h2>
+        <div
+          className="w-10 h-px mb-4"
+          style={{ backgroundColor: `${catInfo?.color}40` }}
+        />
 
-      <div
-        className="w-10 h-px mb-4"
-        style={{ backgroundColor: `${catInfo?.color}40` }}
-      />
+        <blockquote
+          className="font-serif text-sm italic text-parchment/75 leading-relaxed border-l-2 pl-3 mb-4"
+          style={{ borderColor: `${catInfo?.color}30` }}
+        >
+          &ldquo;{city.quote}&rdquo;
+        </blockquote>
 
-      {/* Quote */}
-      <blockquote
-        className="font-serif text-base italic text-parchment/80 leading-relaxed border-l-2 pl-4 mb-4"
-        style={{ borderColor: `${catInfo?.color}30` }}
-      >
-        &ldquo;{city.quote}&rdquo;
-      </blockquote>
+        <p className="text-xs text-parchment/35 font-sans mb-5">
+          {catInfo?.description}
+        </p>
 
-      {/* Category description */}
-      <p className="text-xs text-parchment/35 font-sans mb-5">
-        {catInfo?.description}
-      </p>
-
-      {/* Link to full page */}
-      <Link
-        href={`/city/${city.id}`}
-        className="inline-flex items-center gap-1.5 font-sans text-xs tracking-wide transition-opacity hover:opacity-80"
-        style={{ color: catInfo?.color }}
-      >
-        <span>Explore {city.name}</span>
-        <span>&rarr;</span>
-      </Link>
+        <Link
+          href={`/city/${city.id}`}
+          className="inline-flex items-center gap-1.5 font-sans text-xs tracking-wide transition-opacity hover:opacity-80"
+          style={{ color: catInfo?.color }}
+        >
+          <span>Explore {city.name}</span>
+          <span>&rarr;</span>
+        </Link>
+      </div>
     </div>
   );
 }

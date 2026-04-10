@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { cities, categories, getCitiesByCategory, getCategoryInfo, type City, type Category } from "@/data/cities";
 
 interface Props {
@@ -11,6 +11,79 @@ interface Props {
 
 export default function ConstellationMap({ activeCategory, selectedCity, onSelectCity }: Props) {
   const [hoveredCity, setHoveredCity] = useState<string | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const viewBoxRef = useRef({ x: 0, y: 0, w: 100, h: 85 });
+
+  // Animate viewBox when category changes (moderate zoom)
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+
+    let target: { x: number; y: number; w: number; h: number };
+
+    if (!activeCategory) {
+      target = { x: 0, y: 0, w: 100, h: 85 };
+    } else {
+      const catCities = getCitiesByCategory(activeCategory);
+      const xs = catCities.map((c) => c.x);
+      const ys = catCities.map((c) => c.y);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2;
+
+      // Padded bbox: 10 units padding on each side
+      let w = maxX - minX + 20;
+      let h = maxY - minY + 20;
+
+      // Enforce 100:85 aspect ratio
+      const aspect = 100 / 85;
+      if (w / h > aspect) {
+        h = w / aspect;
+      } else {
+        w = h * aspect;
+      }
+
+      // Enforce minimum size (prevents over-zoom)
+      if (w < 35) {
+        w = 35;
+        h = 35 / aspect;
+      }
+
+      target = { x: cx - w / 2, y: cy - h / 2, w, h };
+    }
+
+    const start = { ...viewBoxRef.current };
+    const startTime = performance.now();
+    const duration = 500;
+    let animFrame: number;
+
+    const animate = (now: number) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
+
+      const current = {
+        x: start.x + (target.x - start.x) * ease,
+        y: start.y + (target.y - start.y) * ease,
+        w: start.w + (target.w - start.w) * ease,
+        h: start.h + (target.h - start.h) * ease,
+      };
+
+      viewBoxRef.current = current;
+      svg.setAttribute(
+        "viewBox",
+        `${current.x} ${current.y} ${current.w} ${current.h}`
+      );
+
+      if (t < 1) animFrame = requestAnimationFrame(animate);
+    };
+
+    animFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animFrame);
+  }, [activeCategory]);
 
   // Constellation lines (static, computed once)
   const constellationLines = useMemo(() => {
@@ -48,8 +121,9 @@ export default function ConstellationMap({ activeCategory, selectedCity, onSelec
 
   return (
     <div className="relative w-full h-full">
-      {/* Desktop: SVG constellation — static viewBox, never zooms */}
+      {/* Desktop: SVG constellation */}
       <svg
+        ref={svgRef}
         viewBox="0 0 100 85"
         className="w-full h-full hidden md:block"
         preserveAspectRatio="xMidYMid meet"
@@ -65,10 +139,10 @@ export default function ConstellationMap({ activeCategory, selectedCity, onSelec
 
         {/* Background — click to deselect */}
         <rect
-          x="0"
-          y="0"
-          width="100"
-          height="85"
+          x="-50"
+          y="-50"
+          width="200"
+          height="185"
           fill="transparent"
           onClick={() => onSelectCity(null)}
         />

@@ -11,7 +11,7 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
 
-  const closeModal = useCallback(() => setSelectedCity(null), []);
+  const closeSidebar = useCallback(() => setSelectedCity(null), []);
 
   // Deselect city when switching to a category that doesn't contain it
   useEffect(() => {
@@ -20,15 +20,15 @@ export default function Home() {
     }
   }, [activeCategory, selectedCity]);
 
-  // Escape key closes the modal
+  // Escape key closes the sidebar
   useEffect(() => {
     if (!selectedCity) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeModal();
+      if (e.key === "Escape") closeSidebar();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [selectedCity, closeModal]);
+  }, [selectedCity, closeSidebar]);
 
   return (
     <div className="relative h-screen flex flex-col overflow-hidden">
@@ -52,9 +52,10 @@ export default function Home() {
         />
       </div>
 
-      {/* Constellation */}
-      <div className="relative flex-1 min-h-0 z-10">
-        <main className="w-full h-full flex items-center justify-center px-4 py-2">
+      {/* Main content: constellation + sidebar */}
+      <div className="relative flex-1 min-h-0 z-10 flex">
+        {/* Constellation — flex-1 shrinks when sidebar opens */}
+        <main className="flex-1 min-w-0 h-full flex items-center justify-center px-4 py-2">
           <div className="w-full h-full">
             <ConstellationMap
               activeCategory={activeCategory}
@@ -63,24 +64,33 @@ export default function Home() {
             />
           </div>
         </main>
+
+        {/* Desktop sidebar — transitions width from 0 to 350px */}
+        <div
+          className={`hidden md:block h-full overflow-hidden transition-[width] duration-300 ease-out flex-shrink-0 ${
+            selectedCity
+              ? "w-[350px] border-l border-parchment/[0.08]"
+              : "w-0 border-l border-transparent"
+          }`}
+          style={{ backgroundColor: selectedCity ? "rgba(10,10,18,0.95)" : undefined }}
+        >
+          <div className="w-[350px] h-full">
+            {selectedCity && (
+              <CityCard city={selectedCity} onClose={closeSidebar} />
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Lightbox modal */}
+      {/* Mobile bottom sheet */}
       {selectedCity && (
         <div
-          className="fixed inset-0 z-40 flex items-center justify-center p-4 animate-modal-backdrop"
-          style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
-          onClick={closeModal}
+          className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex flex-col rounded-t-xl border-t border-parchment/[0.08] bg-background/95 backdrop-blur-sm animate-slide-up-full"
+          style={{ height: "40vh" }}
         >
-          <div
-            className="w-full max-w-[500px] rounded-lg animate-modal-card"
-            style={{
-              backgroundColor: "rgba(10, 10, 18, 0.95)",
-              border: "1px solid rgba(196,163,90,0.15)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <CityCard city={selectedCity} onClose={closeModal} />
+          <div className="w-10 h-1 bg-parchment/20 rounded-full mx-auto mt-2.5 mb-1 flex-shrink-0" />
+          <div className="flex-1 min-h-0">
+            <CityCard city={selectedCity} onClose={closeSidebar} />
           </div>
         </div>
       )}

@@ -33,8 +33,7 @@ const config: Config = {
         "slide-up": "slideUp 300ms ease-out forwards",
         "slide-up-full": "slideUpFull 300ms ease-out forwards",
         "slide-in-right": "slideInRight 300ms ease-out forwards",
-        "modal-backdrop": "modalBackdrop 300ms ease-out forwards",
-        "modal-card": "modalCard 300ms ease-out forwards",
+
         "breathe": "breathe 3.5s ease-in-out infinite",
       },
       keyframes: {
@@ -62,14 +61,7 @@ const config: Config = {
           "0%": { transform: "translateX(100%)" },
           "100%": { transform: "translateX(0)" },
         },
-        modalBackdrop: {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
-        },
-        modalCard: {
-          "0%": { opacity: "0", transform: "scale(0.95)" },
-          "100%": { opacity: "1", transform: "scale(1)" },
-        },
+
         breathe: {
           "0%, 100%": { opacity: "0.4" },
           "50%": { opacity: "0.7" },
